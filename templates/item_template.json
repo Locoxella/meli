@@ -1,0 +1,42 @@
+{
+  "title": "Producto de Prueba - No Comprar",
+  "category_id": "MLA3530",
+  "price": 15000,
+  "currency_id": "ARS",
+  "available_quantity": 1,
+  "buying_mode": "buy_it_now",
+  "condition": "new",
+  "listing_type_id": "gold_special",
+  "description": {
+    "plain_text": "Descripción detallada del producto publicado utilizando melikit.\nEstado impecable, garantía y envío a convenir."
+  },
+  "pictures": [
+    {
+      "source": "https://http2.mlstatic.com/storage/developers-site-cms-admin/DevSite/366633181898-logo_developers.png"
+    }
+  ],
+  "attributes": [
+    {
+      "id": "BRAND",
+      "value_name": "Generica"
+    },
+    {
+      "id": "MODEL",
+      "value_name": "Standard"
+    },
+    {
+      "id": "ITEM_CONDITION",
+      "value_name": "Nuevo"
+    }
+  ],
+  "sale_terms": [
+    {
+      "id": "WARRANTY_TYPE",
+      "value_name": "Garantía del vendedor"
+    },
+    {
+      "id": "WARRANTY_TIME",
+      "value_name": "30 días"
+    }
+  ]
+}
