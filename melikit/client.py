@@ -80,9 +80,9 @@ class MeliClient:
         return resp.json()
 
     def get_item(self, item_id: str) -> Dict[str, Any]:
-        """Consulta los datos de una publicación."""
+        """Consulta los datos de una publicación enviando token por si está pausada."""
         url = f"{API_BASE_URL}/items/{item_id}"
-        resp = requests.get(url, headers=self._headers(require_auth=False))
+        resp = requests.get(url, headers=self._headers(require_auth=True))
         resp.raise_for_status()
         return resp.json()
 

@@ -1,15 +1,29 @@
 {
-  "title": "Router Asus Rt-ax55 Ax1800 Wifi 6 Dual Band Impecable En Caja",
+  "family_name": "Router Asus Rt-ax55 Ax1800 Wifi 6 Dual Band",
   "category_id": "MLA430901",
-  "price": 115000,
+  "price": 128000,
   "currency_id": "ARS",
   "available_quantity": 1,
   "buying_mode": "buy_it_now",
   "condition": "used",
   "listing_type_id": "gold_special",
   "description": {
-    "plain_text": "Router ASUS RT-AX55 AX1800 Dual Band WiFi 6 (802.11ax)\n\nEstado: Usado en impecable estado de funcionamiento y conservación estético.\nIncluye caja original y fuente de alimentación oficial.\n\nPrincipales Características:\n- Estándar WiFi 6 (802.11ax) ultrarrápido: Hasta 1800 Mbps (574 Mbps en 2.4GHz + 1201 Mbps en 5GHz).\n- Procesador Quad-Core 1.7 GHz de alto rendimiento.\n- Soporte ASUS AiMesh: Permite conectarlo con otros routers Asus para crear una red de malla en toda la casa.\n- Seguridad AiProtection clásica con tecnología Trend Micro de por vida.\n- 4 antenas externas de alta ganancia con tecnologías OFDMA y MU-MIMO para conectar decenas de dispositivos sin latencia ni cortes.\n- Puertos Gigabit: 1 WAN Gigabit + 4 LAN Gigabit.\n- Soporte para IPv6 y compatible con Windows 11 / Mac / Linux.\n\nSe entrega listo para conectar y configurar mediante la app ASUS Router o interfaz web."
+    "plain_text": "Router ASUS RT-AX55 AX1800 Dual Band WiFi 6 (802.11ax)\n\n¡ENVÍO GRATIS A TODO EL PAÍS!\n\nEstado: Usado en impecable estado estético y de funcionamiento. Se entrega con su caja original y fuente de alimentación oficial.\n\nPrincipales Características:\n- Nueva generación WiFi 6 (802.11ax): Velocidad combinada de hasta 1800 Mbps (574 Mbps en 2.4GHz + 1201 Mbps en 5GHz).\n- Procesador Quad-Core 1.7 GHz de alto rendimiento.\n- Soporte ASUS AiMesh: Enlazalo con otros routers Asus compatibles para tener señal continua en toda la casa.\n- Seguridad AiProtection clásica con Trend Micro de por vida.\n- 4 antenas externas de alta ganancia con tecnologías OFDMA y MU-MIMO para conectar decenas de dispositivos sin caídas ni cortes.\n- Puertos Gigabit: 1 WAN Gigabit + 4 LAN Gigabit.\n- Compatible con Windows 11 / Mac / Linux y soporte IPv6.\n\nFácil configuración desde la app ASUS Router para celular o mediante navegador web."
   },
+  "pictures": [
+    {
+      "source": "https://raw.githubusercontent.com/Locoxella/meli/main/processed_images/foto_1_principal.jpg"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/Locoxella/meli/main/processed_images/foto_2_frontal.jpg"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/Locoxella/meli/main/processed_images/foto_3_puertos.jpg"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/Locoxella/meli/main/processed_images/foto_4_caja.jpg"
+    }
+  ],
   "attributes": [
     {
       "id": "BRAND",
