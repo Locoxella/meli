@@ -1,0 +1,8 @@
+name = "meli-auth-callback"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Para asociar tu dominio administrado en Cloudflare:
+# routes = [
+#   { pattern = "meli.solucionesaustral.com/*", zone_name = "solucionesaustral.com" }
+# ]
