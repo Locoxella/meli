@@ -277,3 +277,6 @@ $RECYCLE.BIN/
 *.db
 *.sqlite3
 scratch/
+
+# Meli Tokens
+.meli_tokens.json
