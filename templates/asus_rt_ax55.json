@@ -1,0 +1,37 @@
+{
+  "title": "Router Asus Rt-ax55 Ax1800 Wifi 6 Dual Band Impecable En Caja",
+  "category_id": "MLA430901",
+  "price": 115000,
+  "currency_id": "ARS",
+  "available_quantity": 1,
+  "buying_mode": "buy_it_now",
+  "condition": "used",
+  "listing_type_id": "gold_special",
+  "description": {
+    "plain_text": "Router ASUS RT-AX55 AX1800 Dual Band WiFi 6 (802.11ax)\n\nEstado: Usado en impecable estado de funcionamiento y conservación estético.\nIncluye caja original y fuente de alimentación oficial.\n\nPrincipales Características:\n- Estándar WiFi 6 (802.11ax) ultrarrápido: Hasta 1800 Mbps (574 Mbps en 2.4GHz + 1201 Mbps en 5GHz).\n- Procesador Quad-Core 1.7 GHz de alto rendimiento.\n- Soporte ASUS AiMesh: Permite conectarlo con otros routers Asus para crear una red de malla en toda la casa.\n- Seguridad AiProtection clásica con tecnología Trend Micro de por vida.\n- 4 antenas externas de alta ganancia con tecnologías OFDMA y MU-MIMO para conectar decenas de dispositivos sin latencia ni cortes.\n- Puertos Gigabit: 1 WAN Gigabit + 4 LAN Gigabit.\n- Soporte para IPv6 y compatible con Windows 11 / Mac / Linux.\n\nSe entrega listo para conectar y configurar mediante la app ASUS Router o interfaz web."
+  },
+  "attributes": [
+    {
+      "id": "BRAND",
+      "value_name": "Asus"
+    },
+    {
+      "id": "MODEL",
+      "value_name": "RT-AX55"
+    },
+    {
+      "id": "ITEM_CONDITION",
+      "value_name": "Usado"
+    }
+  ],
+  "sale_terms": [
+    {
+      "id": "WARRANTY_TYPE",
+      "value_name": "Garantía del vendedor"
+    },
+    {
+      "id": "WARRANTY_TIME",
+      "value_name": "30 días"
+    }
+  ]
+}
