@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "melikit"
+version = "0.2.0"
+description = "Herramientas y SDK para interactuar con la API oficial de Mercado Libre"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+ai = [
+    "pillow>=10.0.0",
+    "rembg>=2.0.50",
+]
+dev = [
+    "pytest>=8.0.0",
+    "responses>=0.25.0",
+]
+
+[project.scripts]
+melikit = "melikit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["melikit*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

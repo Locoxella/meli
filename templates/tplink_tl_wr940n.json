@@ -1,0 +1,46 @@
+{
+  "family_name": "Router Tp-link Tl-wr940n V5 220v/110v",
+  "category_id": "MLA430901",
+  "price": 30000,
+  "currency_id": "ARS",
+  "available_quantity": 1,
+  "buying_mode": "buy_it_now",
+  "condition": "used",
+  "listing_type_id": "gold_special",
+  "description": {
+    "plain_text": "Router Inalámbrico N a 450 Mbps\nVelocidad inalámbrica de 450 Mbps ideal para aplicaciones sensibles a la interrupción como la transmisión de video HD\nTres antenas aumentan la robustez y la estabilidad inalámbricas\nAdmite 3 modos: modos de enrutador, extensor de rango y punto de acceso\nFácil encriptación de seguridad inalámbrica con solo presionar el botón WPS\nControl de ancho de banda: asigna sus dispositivos preferidos con más ancho de banda\n\nVelocidad Inalámbrica N de 450 Mbps - Velocidad de Descarga Rápida\nEl TL-WR940N de TP-Link es una solución de alta velocidad que es compatible con IEEE 802.11b/g/n. Basado en la tecnología 802.11n, TL-WR940N ofrece a los usuarios un rendimiento inalámbrico de hasta 450Mbps, que puede satisfacer sus necesidades de red doméstica más exigentes, como transmisión HD, juegos en línea y descarga de archivos grandes."
+  },
+  "pictures": [
+    {
+      "source": "https://raw.githubusercontent.com/Locoxella/meli/main/processed_images/tplink_studio_portada.jpg"
+    }
+  ],
+  "attributes": [
+    {
+      "id": "BRAND",
+      "value_name": "TP-Link"
+    },
+    {
+      "id": "MODEL",
+      "value_name": "TL-WR940N"
+    },
+    {
+      "id": "COLOR",
+      "value_name": "Negro"
+    },
+    {
+      "id": "CONNECTION_TYPES",
+      "value_name": "Con cable/Inalámbrica"
+    },
+    {
+      "id": "ITEM_CONDITION",
+      "value_name": "Usado"
+    }
+  ],
+  "sale_terms": [
+    {
+      "id": "WARRANTY_TYPE",
+      "value_name": "Sin garantía"
+    }
+  ]
+}

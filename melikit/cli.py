@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from .auth import MeliAuth
 from .client import MeliClient
+from .exceptions import MeliError, MeliAPIError, MeliAuthError
 
 
 def handle_auth(args):
@@ -25,7 +26,7 @@ def handle_auth(args):
     elif args.action == "status":
         tokens = auth.load_tokens()
         if not tokens:
-            print("No hay tokens guardados. Ejecuta 'python -m melikit auth url' o 'login'.")
+            print("No hay tokens guardados. Ejecuta 'melikit auth url' o 'login'.")
             return
         print(f"Token presente. Expira en timestamp: {tokens.get('expires_at')}")
         try:
@@ -69,10 +70,26 @@ def handle_category(args):
 
 def handle_item(args):
     client = MeliClient()
-    if args.action == "get":
+    if args.action == "list":
+        res = client.list_user_items(status=args.status, limit=args.limit, offset=args.offset)
+        results = res.get("results", [])
+        paging = res.get("paging", {})
+        print(f"\nPublicaciones del usuario (Total: {paging.get('total', len(results))}):")
+        for item_id in results:
+            print(f" - {item_id}")
+        if not results:
+            print(" No se encontraron publicaciones con los filtros indicados.")
+        print()
+    elif args.action == "get":
+        if not args.item_id:
+            print("Error: Debes especificar --item-id.")
+            sys.exit(1)
         item = client.get_item(args.item_id)
         print(json.dumps(item, indent=2, ensure_ascii=False))
     elif args.action == "validate":
+        if not args.file:
+            print("Error: Debes especificar --file.")
+            sys.exit(1)
         path = Path(args.file)
         if not path.exists():
             print(f"Archivo no encontrado: {path}")
@@ -82,6 +99,9 @@ def handle_item(args):
         result = client.validate_item(data)
         print(json.dumps(result, indent=2, ensure_ascii=False))
     elif args.action == "create":
+        if not args.file:
+            print("Error: Debes especificar --file.")
+            sys.exit(1)
         path = Path(args.file)
         if not path.exists():
             print(f"Archivo no encontrado: {path}")
@@ -94,14 +114,63 @@ def handle_item(args):
         print(f"Permalink: {created.get('permalink')}")
         print(f"Estado: {created.get('status')}")
     elif args.action == "status":
+        if not args.item_id or not args.status:
+            print("Error: Debes especificar --item-id y --status.")
+            sys.exit(1)
         res = client.change_status(args.item_id, args.status)
         print(f"Estado del item {args.item_id} actualizado a: {res.get('status')}")
     elif args.action == "price":
+        if not args.item_id or args.price is None:
+            print("Error: Debes especificar --item-id y --price.")
+            sys.exit(1)
         res = client.update_price(args.item_id, args.price)
         print(f"Precio del item {args.item_id} actualizado a: {res.get('price')}")
     elif args.action == "stock":
+        if not args.item_id or args.quantity is None:
+            print("Error: Debes especificar --item-id y --quantity.")
+            sys.exit(1)
         res = client.update_stock(args.item_id, args.quantity)
         print(f"Stock del item {args.item_id} actualizado a: {res.get('available_quantity')}")
+    elif args.action == "description":
+        if not args.item_id:
+            print("Error: Debes especificar --item-id.")
+            sys.exit(1)
+        if args.text or args.file:
+            text = args.text
+            if args.file:
+                path = Path(args.file)
+                if not path.exists():
+                    print(f"Archivo no encontrado: {path}")
+                    sys.exit(1)
+                text = path.read_text(encoding="utf-8")
+            res = client.update_item_description(args.item_id, text)
+            print(f"Descripción del item {args.item_id} actualizada con éxito.")
+        else:
+            desc = client.get_item_description(args.item_id)
+            print(json.dumps(desc, indent=2, ensure_ascii=False))
+
+
+def handle_picture(args):
+    client = MeliClient()
+    if args.action == "upload":
+        path = Path(args.file)
+        if not path.exists():
+            print(f"Archivo no encontrado: {path}")
+            sys.exit(1)
+        print(f"Subiendo imagen {path.name} a Mercado Libre...")
+        res = client.upload_picture(path)
+        print("¡Imagen subida exitosamente!")
+        print(f"Picture ID: {res.get('id')}")
+        print(f"Tamaño máximo: {res.get('max_size')}")
+
+
+def handle_image(args):
+    from .ai_publisher import PublicationPipeline
+    pipeline = PublicationPipeline(output_dir=args.output)
+    if args.action == "clean":
+        print(f"Procesando imagen {args.input}...")
+        output_file = pipeline.process_image(args.input, filename_prefix=args.prefix)
+        print(f"¡Imagen procesada con fondo blanco puro y guardada en:\n  {output_file}")
 
 
 def main():
@@ -133,16 +202,40 @@ def main():
 
     # Item
     p_item = subparsers.add_parser("item", help="Gestion de publicaciones")
-    p_item.add_argument("action", choices=["get", "validate", "create", "status", "price", "stock"])
+    p_item.add_argument("action", choices=["list", "get", "validate", "create", "status", "price", "stock", "description"])
     p_item.add_argument("--item-id", help="ID de la publicacion (ej. MLA123456789)")
-    p_item.add_argument("--file", help="Ruta al archivo JSON con datos del item")
-    p_item.add_argument("--status", choices=["active", "paused", "closed"], help="Nuevo estado del item")
+    p_item.add_argument("--file", help="Ruta al archivo JSON con datos del item o archivo de texto para descripción")
+    p_item.add_argument("--text", help="Texto de la descripción")
+    p_item.add_argument("--status", choices=["active", "paused", "closed"], help="Estado del item (para status o filtro en list)")
     p_item.add_argument("--price", type=float, help="Nuevo precio")
     p_item.add_argument("--quantity", type=int, help="Nueva cantidad de stock")
+    p_item.add_argument("--limit", type=int, default=50, help="Límite de publicaciones para list (default: 50)")
+    p_item.add_argument("--offset", type=int, default=0, help="Desplazamiento para list (default: 0)")
     p_item.set_defaults(func=handle_item)
 
+    # Picture
+    p_pic = subparsers.add_parser("picture", help="Subida y gestión de imágenes en Mercado Libre")
+    p_pic.add_argument("action", choices=["upload"])
+    p_pic.add_argument("--file", required=True, help="Ruta al archivo de imagen local")
+    p_pic.set_defaults(func=handle_picture)
+
+    # Image (AI / Visión)
+    p_img = subparsers.add_parser("image", help="Limpieza y preparación de fotos de producto con IA")
+    p_img.add_argument("action", choices=["clean"])
+    p_img.add_argument("--input", required=True, help="Ruta a la foto original")
+    p_img.add_argument("--output", default="processed_images", help="Carpeta destino (default: processed_images)")
+    p_img.add_argument("--prefix", default="item", help="Prefijo para el archivo generado")
+    p_img.set_defaults(func=handle_image)
+
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args)
+    except (MeliAPIError, MeliAuthError) as e:
+        print(f"\n[Error de Mercado Libre] {e}", file=sys.stderr)
+        sys.exit(1)
+    except MeliError as e:
+        print(f"\n[Error] {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

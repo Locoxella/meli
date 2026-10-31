@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import tempfile
 import time
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -9,11 +10,14 @@ from typing import Dict, Any, Optional
 import requests
 from dotenv import load_dotenv
 
+from .exceptions import MeliAuthError, MeliAPIError
+
 load_dotenv()
 
 DEFAULT_AUTH_URL = "https://auth.mercadolibre.com.ar/authorization"
 TOKEN_URL = "https://api.mercadolibre.com/oauth/token"
 TOKENS_FILE = Path(".meli_tokens.json")
+DEFAULT_TIMEOUT = 15.0
 
 
 class OAuthCallbackHandler(BaseHTTPRequestHandler):
@@ -55,11 +59,13 @@ class MeliAuth:
         client_secret: Optional[str] = None,
         redirect_uri: Optional[str] = None,
         tokens_path: Path = TOKENS_FILE,
+        timeout: float = DEFAULT_TIMEOUT,
     ):
         self.client_id = client_id or os.getenv("MELI_APP_ID")
         self.client_secret = client_secret or os.getenv("MELI_CLIENT_SECRET")
         self.redirect_uri = redirect_uri or os.getenv("MELI_REDIRECT_URI", "https://localhost/callback")
-        self.tokens_path = tokens_path
+        self.tokens_path = Path(tokens_path)
+        self.timeout = timeout
 
     @staticmethod
     def extract_code(raw_value: str) -> str:
@@ -98,9 +104,13 @@ class MeliAuth:
             "content-type": "application/x-www-form-urlencoded",
         }
 
-        resp = requests.post(TOKEN_URL, data=payload, headers=headers)
+        try:
+            resp = requests.post(TOKEN_URL, data=payload, headers=headers, timeout=self.timeout)
+        except requests.RequestException as e:
+            raise MeliAuthError(f"Error de red al conectar con Mercado Libre: {e}") from e
+
         if resp.status_code != 200:
-            raise RuntimeError(f"Error al obtener token ({resp.status_code}): {resp.text}")
+            raise MeliAPIError.from_response(resp)
 
         data = resp.json()
         data["expires_at"] = time.time() + data.get("expires_in", 21600)
@@ -122,9 +132,13 @@ class MeliAuth:
             "content-type": "application/x-www-form-urlencoded",
         }
 
-        resp = requests.post(TOKEN_URL, data=payload, headers=headers)
+        try:
+            resp = requests.post(TOKEN_URL, data=payload, headers=headers, timeout=self.timeout)
+        except requests.RequestException as e:
+            raise MeliAuthError(f"Error de red al refrescar token: {e}") from e
+
         if resp.status_code != 200:
-            raise RuntimeError(f"Error al refrescar token ({resp.status_code}): {resp.text}")
+            raise MeliAPIError.from_response(resp)
 
         data = resp.json()
         data["expires_at"] = time.time() + data.get("expires_in", 21600)
@@ -132,8 +146,25 @@ class MeliAuth:
         return data
 
     def save_tokens(self, tokens: Dict[str, Any]) -> None:
-        with open(self.tokens_path, "w", encoding="utf-8") as f:
-            json.dump(tokens, f, indent=2)
+        """Guarda los tokens de forma atómica y con permisos restrictivos (0600)."""
+        parent_dir = self.tokens_path.parent
+        parent_dir.mkdir(parents=True, exist_ok=True)
+
+        with tempfile.NamedTemporaryFile("w", dir=parent_dir, delete=False, encoding="utf-8") as tf:
+            json.dump(tokens, tf, indent=2)
+            temp_path = Path(tf.name)
+
+        try:
+            # Permisos 0600 (solo lectura/escritura para el dueño)
+            if hasattr(os, "chmod"):
+                os.chmod(temp_path, 0o600)
+            os.replace(temp_path, self.tokens_path)
+            if hasattr(os, "chmod"):
+                os.chmod(self.tokens_path, 0o600)
+        except Exception:
+            if temp_path.exists():
+                temp_path.unlink()
+            raise
 
     def load_tokens(self) -> Optional[Dict[str, Any]]:
         if not self.tokens_path.exists():
@@ -147,15 +178,15 @@ class MeliAuth:
     def get_valid_access_token(self) -> str:
         tokens = self.load_tokens()
         if not tokens or "access_token" not in tokens:
-            raise RuntimeError(
-                "No hay sesion activa. Genera el token primero con 'python -m melikit auth url' o 'login'."
+            raise MeliAuthError(
+                "No hay sesion activa. Genera el token primero con 'melikit auth url' o 'melikit auth login'."
             )
 
         expires_at = tokens.get("expires_at", 0)
         if time.time() >= (expires_at - 300):
             refresh_tok = tokens.get("refresh_token")
             if not refresh_tok:
-                raise RuntimeError("El token expiro y no hay refresh_token disponible.")
+                raise MeliAuthError("El token expiro y no hay refresh_token disponible.")
             tokens = self.refresh_access_token(refresh_tok)
 
         return tokens["access_token"]
@@ -170,7 +201,7 @@ class MeliAuth:
         print("=" * 60)
         print("1. Abre la siguiente URL en tu navegador:")
         print(f"\n   {auth_url}\n")
-        print(f"2. Inicia sesion y autoriza la aplicacion.")
+        print("2. Inicia sesion y autoriza la aplicacion.")
         print(f"3. Esperando redireccion en {self.redirect_uri}...")
         print("=" * 60 + "\n")
 
@@ -182,10 +213,10 @@ class MeliAuth:
             server.handle_request()
 
         if OAuthCallbackHandler.error:
-            raise RuntimeError(f"Error devuelto por MeLi: {OAuthCallbackHandler.error}")
+            raise MeliAuthError(f"Error devuelto por MeLi: {OAuthCallbackHandler.error}")
 
         code = OAuthCallbackHandler.code
-        print(f"Codigo de autorizacion recibido con exito.")
+        print("Codigo de autorizacion recibido con exito.")
         print("Intercambiando codigo por access_token y refresh_token...")
         tokens = self.exchange_code_for_token(code)
         print("Tokens guardados exitosamente en", self.tokens_path)

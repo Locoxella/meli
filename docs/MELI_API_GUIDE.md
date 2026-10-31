@@ -45,7 +45,7 @@ Mercado Libre utiliza el flujo estándar de Authorization Code:
 ### Duración de Tokens
 - **`access_token`**: Válido por 6 horas (21600 segundos).
 - **`refresh_token`**: Permite solicitar un nuevo `access_token` sin intervención del usuario.
-- `melikit` gestiona este refresco automáticamente cuando restan menos de 5 minutos de vigencia.
+- `melikit` gestiona este refresco automáticamente cuando restan menos de 5 minutos de vigencia y almacena las credenciales con permisos restringidos (`0600`).
 
 ---
 
@@ -71,10 +71,13 @@ Authorization: Bearer {access_token}
 Content-Type: application/json
 ```
 
+> **Nota técnica sobre `family_name` vs `title`:**
+> En la API actual de Mercado Libre, el campo raíz `title` está deprecado y es rechazado (`The fields [title] are invalid for requested call`). En su lugar, es obligatorio utilizar **`family_name`**. Mercado Libre construye dinámicamente el título público final mediante su motor de decoraciones a partir de `family_name`, la marca, el modelo y atributos del catálogo.
+
 **Payload representativo:**
 ```json
 {
-  "title": "Auriculares Bluetooth Sony WH-1000XM4 Negro",
+  "family_name": "Auriculares Bluetooth Sony WH-1000XM4 Negro",
   "category_id": "MLA3697",
   "price": 350000,
   "currency_id": "ARS",
@@ -95,27 +98,57 @@ Content-Type: application/json
     {
       "id": "MODEL",
       "value_name": "WH-1000XM4"
+    },
+    {
+      "id": "ITEM_CONDITION",
+      "value_name": "Nuevo"
     }
   ]
 }
 ```
 
 ### D. Modificación y Gestión
+- **Listar Publicaciones del Usuario**:
+  ```http
+  GET https://api.mercadolibre.com/users/{user_id}/items/search?status=active
+  Authorization: Bearer {access_token}
+  ```
 - **Cambiar Estado** (`active`, `paused`, `closed`):
   ```http
   PUT https://api.mercadolibre.com/items/{item_id}
+  Authorization: Bearer {access_token}
   {"status": "paused"}
   ```
 - **Modificar Stock o Precio**:
   ```http
   PUT https://api.mercadolibre.com/items/{item_id}
+  Authorization: Bearer {access_token}
   {"price": 380000, "available_quantity": 3}
+  ```
+- **Consultar o Actualizar Descripción**:
+  Mercado Libre administra la descripción en texto plano en un recurso independiente:
+  ```http
+  GET https://api.mercadolibre.com/items/{item_id}/description
+  Authorization: Bearer {access_token}
+  ```
+  *(Requiere cabecera de autenticación; de lo contrario devuelve 403 `PA_UNAUTHORIZED_RESULT_FROM_POLICIES`).*
+  
+  Para crear o actualizar la descripción:
+  ```http
+  POST https://api.mercadolibre.com/items/{item_id}/description
+  Authorization: Bearer {access_token}
+  Content-Type: application/json
+
+  {"plain_text": "Texto completo de la descripción..."}
   ```
 
 ---
 
 ## 4. Prácticas Recomendadas y Reglas de la API
 
-1. **Condición del Ítem**: Aunque `condition: "new"` se mantiene por retrocompatibilidad, la API ahora procesa la condición mediante el atributo `ITEM_CONDITION` dentro de `attributes`.
-2. **Dimensiones y Pesos de Envío**: Si se configuran paquetes para Mercado Envíos, los campos `SELLER_PACKAGE_HEIGHT`, `SELLER_PACKAGE_WIDTH`, etc. deben enviarse estrictamente como strings numéricos enteros (ejemplo: `"15"` en lugar de `"15cm"`).
-3. **Imágenes**: Deben ser URLs públicas accesibles por los servidores de Mercado Libre con resolución mínima recomendada de 500x500 px (óptimo 1200x1200 px con fondo blanco puro).
+1. **Uso de `family_name` y Atributos**: Envía siempre `family_name` en lugar de `title`. Los datos descriptivos de variante, color y especificaciones técnicas deben residir en `attributes`.
+2. **Condición del Ítem**: Aunque `condition: "new"` o `"used"` se mantiene en la raíz por compatibilidad, la API procesa y valida principalmente el atributo `ITEM_CONDITION` dentro de `attributes`.
+3. **Dimensiones y Pesos de Envío**: Si se configuran paquetes para Mercado Envíos, los campos `SELLER_PACKAGE_HEIGHT`, `SELLER_PACKAGE_WIDTH`, etc. deben enviarse estrictamente como strings numéricos enteros (ejemplo: `"15"` en lugar de `"15cm"`).
+4. **Imágenes**:
+   - Pueden enviarse como URLs públicas seguras (`source`) o subirse directamente a Mercado Libre mediante `POST https://api.mercadolibre.com/pictures/items/upload` (multipart/form-data) asociando el `id` resultante.
+   - Resolución recomendada: 1200x1200 px con fondo blanco puro para fotos de portada.
