@@ -1,5 +1,7 @@
 # Mercado Libre Toolkit (`melikit`)
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
 <p align="center">
   <img src="docs/logo.png" alt="MeliKit Logo" width="180" style="border-radius: 24px;" />
 </p>
@@ -122,3 +124,8 @@ pytest -v
 
 ## 📚 Documentación
 - Consulta la [Guía Técnica de la API de Mercado Libre](docs/MELI_API_GUIDE.md) para detalles sobre la estructura de requests, esquemas de variación y políticas de publicación.
+
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia **GNU Affero General Public License v3.0 (AGPL-3.0)**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
